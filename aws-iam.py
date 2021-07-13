@@ -12,14 +12,12 @@ def converter(obj):
         return obj.isoformat()
     raise TypeError(f"{type(obj)} not datetime")
 
-def get_role(role_name, account_id, policy_name):
+def get_role(role_name, policy_name):
     try:
         response = client.get_role(RoleName=role_name)
-        print('ROLENAME:')
         json_object = json.dumps(response, default=converter)
         loads = json.loads(json_object)
         RoleName = loads['Role']['RoleName']
-        print(RoleName)
         if(RoleName == role_name):
             print('Provided Role '+RoleName+' Exists')
             list_attached_policies(RoleName,policy_name)
@@ -31,6 +29,7 @@ def get_role(role_name, account_id, policy_name):
 
 def list_attached_policies(RoleName, policy_name):
     try:
+        existingPolicy=[]
         response = client.list_attached_role_policies(RoleName=RoleName)
         json_object = json.dumps(response, default=converter)
         loads = json.loads(json_object)
@@ -39,7 +38,8 @@ def list_attached_policies(RoleName, policy_name):
             policyName = chunks['PolicyName']
             if(policyName == policy_name):
                 print('Provided Policy '+policyName+' exists')
-                policyArn = chunks['PolicyArn']
+            else:
+                print(policyName+' Policy exists')
     except Exception as e:
         print(e) 
 
@@ -54,7 +54,7 @@ def main():
                         help='PolicyName', required=True)
     args = parser.parse_args()
 
-    get_role(args.role_name, args.account_id, args.policy_name)
+    get_role(args.role_name, args.policy_name)
 
 
 if __name__ == "__main__":
